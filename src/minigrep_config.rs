@@ -17,7 +17,7 @@ impl Config {
      }
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
+fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
     let mut results = Vec::new();
 
     for line in contents.lines(){
@@ -51,6 +51,28 @@ mod tests {
         assert_eq!(
             vec!["big spicy"],
             search(query, contents)
+        );
+    }
+
+    #[test]
+    fn case_sensitive(){
+        let query = "big";
+        let contents = "big SPiCy\n Bigger spicy";
+
+        assert_eq!(
+            vec!["big SPiCy"],
+            search(&query, &contents)
+        );
+    }
+
+    #[test]
+    fn case_insensitive(){
+        let query = "big";
+        let contents = "big SPiCy\n Bigger spicy";
+
+        assert_eq!(
+            vec!["big SPiCy", "Bigger spicy"],
+            search(&query, &contents)
         );
     }
 }
