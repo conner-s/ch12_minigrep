@@ -39,6 +39,19 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
 }
 
 
+fn search_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
+    let mut results = Vec::new();
+    let query = query.to_lowercase();
+
+    for line in contents.lines(){
+        if line.to_lowercase().contains(&query){
+            results.push(line)
+        }
+    }
+    results
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -71,8 +84,8 @@ mod tests {
         let contents = "big SPiCy\n Bigger spicy";
 
         assert_eq!(
-            vec!["big SPiCy", "Bigger spicy"],
-            search(&query, &contents)
+            vec!["big SPiCy", " Bigger spicy"],
+            search_insensitive(&query, &contents)
         );
     }
 }
