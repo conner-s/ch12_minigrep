@@ -1,9 +1,11 @@
 use std::error::Error;
 use std::fs;
+use std::env;
 
 pub struct Config {
     pub search_string: String,
     pub search_source_file: String,
+    pub env_sensitivity: bool,
     }
 
 impl Config {
@@ -13,13 +15,13 @@ impl Config {
          }
          let search_string = args[1].clone();
          let search_source_file = args[2].clone();
-         Ok(Config{search_string,search_source_file})
+         let env_sensitivity = env::var("rCase").is_err();
+         Ok(Config{search_string,search_source_file,env_sensitivity})
      }
 }
 
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
     let mut results = Vec::new();
-
     for line in contents.lines(){
         if line.contains(query){
             results.push(line);
@@ -31,7 +33,11 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str>{
 pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let source_contents = fs::read_to_string(config.search_source_file)
         .expect("Your file could not be read");
-    let result = search(&config.search_string, &source_contents);
+    let result = if config.env_sensitivity {
+        search(&config.search_string, &source_contents)
+    } else {
+      search_insensitive(&config.search_string, &source_contents)
+    };
     for line in result{
         println!("{}", line)
     }
